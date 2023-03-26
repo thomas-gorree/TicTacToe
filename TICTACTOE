@@ -1,0 +1,104 @@
+from tkinter import *
+from random import *
+from ia import *
+
+
+# je fait ma page tkinter
+page = Tk()
+page.title("Morpion")
+
+def colonne(m):
+    #je prépare ma colone
+    for i in range(0,3):
+        if(m[i][0]==m[i][1]==m[i][2]!=" "):
+            return m[i][0]
+
+    #je fait de meme pour les lignes    
+    for i in range(0,3):
+        if(m[0][i]==m[1][i]==m[2][i]!=" "):
+            return m[0][i]
+
+    #et les diagonales
+    if(m[0][0]==m[1][1]==m[2][2]!=" "):
+        return m[1][1]
+
+    if(m[0][2]==m[1][1]==m[2][0]!=" "):
+        return m[1][1]
+
+    #cases a remplir
+    for i in range(0,3):
+        for j in range(0,3):
+            if(m[i][j]==" "):
+                return None
+    return " "
+
+def draw():
+    global m, labels
+    for i in range(0,3):
+        for j in range(0,3):
+            labels[i][j].config(text=m[i][j])
+    result = colonne(m)
+    if result:
+        result_label.config(text=f"{result} a gagné !")
+    elif result == " ":
+        result_label.config(text=f"{result} aucun gagnant")
+    else:
+        result_label.config(text="")
+
+def jouer_ia():
+    global m, current_player
+    while True:
+        pos = ia()
+        i = pos[0]
+        j = pos[1]
+        if m[i][j] == ' ':
+            m[i][j] = current_player
+            current_player = '0' if current_player == 'x' else 'x'
+            draw()
+            break
+
+
+
+def on_case_click(i, j):
+    global m, current_player
+    if m[i][j] == ' ':
+        m[i][j] = current_player
+        current_player = '0' if current_player == 'x' else 'x'
+        draw()
+        if current_player == '0':
+            jouer_ia()
+
+
+def effacer():
+    global m, current_player
+    m =[[' ',' ',' '],[' ',' ',' '],[' ',' ',' ']]
+    current_player = 'x'
+    draw()
+
+# initialisation de la grille de jeu
+m =[[' ',' ',' '],[' ',' ',' '],[' ',' ',' ']]
+current_player = 'x'
+
+frame1 = Frame(page)
+frame1.grid(row=0, column=0, padx=10, pady=10)
+
+# création des étiquettes pour représenter le plateau de jeu
+labels = []
+for i in range(0,3):
+    row = []
+    for j in range(0,3):
+        label = Label(frame1, text=m[i][j], font=('Arial', 30), width=2, height=1, bg='white', relief='groove')
+        label.grid(row=i, column=j, padx=5, pady=5)
+        label.bind("<Button-1>", lambda event, i=i, j=j: on_case_click(i, j))
+        row.append(label)
+    labels.append(row)
+
+# étiquette pour afficher le résultat de la partie
+result_label = Label(page, font=('Arial', 20))
+result_label.grid(row=1, column=0, padx=10, pady=10)
+
+relance_les_jeux = Button(page, text='Relancer', font=('Arial', 25), command=effacer)
+relance_les_jeux.grid(row=2, column=0, padx=10, pady=10, sticky='w')
+
+# lancement de la boucle d'événements tkinter
+page.mainloop()
