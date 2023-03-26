@@ -1,0 +1,5 @@
+from random import *
+
+
+def ia():
+    return randint(0, 2), randint(0, 2)
